@@ -25,7 +25,7 @@ const columns = [
   { key: "created_at", label: "Created", type: "date" },
 ];
 
-function TeachersPage() {
+function TeachersPage({ canCreate }) {
   return (
     <ResourcePage
       title="Teachers"
@@ -35,6 +35,7 @@ function TeachersPage() {
       columns={columns}
       emptyMessage="No teacher records found yet."
       successLabel="Teacher"
+      canCreate={canCreate}
     />
   );
 }

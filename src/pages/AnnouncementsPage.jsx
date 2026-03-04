@@ -43,7 +43,7 @@ const columns = [
   { key: "created_at", label: "Created", type: "date" },
 ];
 
-function AnnouncementsPage() {
+function AnnouncementsPage({ canCreate }) {
   return (
     <ResourcePage
       title="Announcements"
@@ -54,6 +54,7 @@ function AnnouncementsPage() {
       columns={columns}
       emptyMessage="No announcements published yet."
       successLabel="Announcement"
+      canCreate={canCreate}
     />
   );
 }

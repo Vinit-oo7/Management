@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Sidebar from "./components/SlideBar";
+import AuthScreen from "./components/AuthScreen";
 import DashboardPage from "./pages/DashboardPage";
 import StudentsPage from "./pages/StudentsPage";
 import TeachersPage from "./pages/TeachersPage";
@@ -11,6 +12,13 @@ import AnnouncementsPage from "./pages/AnnouncementsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { checkSupabaseConnection } from "./lib/supabaseClient";
 import { getPublishedProducts } from "./lib/marketplaceService";
+import { useAuth } from "./auth/AuthContext";
+import {
+  canAccessRoute,
+  canCreateResource,
+  canWriteSettings,
+  getVisibleNavItems,
+} from "./auth/accessControl";
 import "./App.css";
 
 const pageMetaMap = [
@@ -35,6 +43,7 @@ const pageMetaMap = [
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const [open, setOpen] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 960 : true,
@@ -130,17 +139,50 @@ function App() {
     };
   }, [supabaseStatus.state]);
 
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    if (!canAccessRoute(user.role, location.pathname)) {
+      navigate("/", { replace: true });
+    }
+  }, [location.pathname, navigate, user]);
+
   const meta = useMemo(() => {
     return pageMetaMap.find((item) => item.match(location.pathname)) || pageMetaMap[0];
   }, [location.pathname]);
+
+  const navItems = useMemo(() => {
+    return user ? getVisibleNavItems(user.role) : [];
+  }, [user]);
+
+  const canAnnounce = user ? canAccessRoute(user.role, "/announcements") : false;
+
+  if (!user) {
+    return <AuthScreen />;
+  }
 
   const handleToggle = () => {
     setOpen((prev) => !prev);
   };
 
+  const renderProtected = (path, element) => {
+    if (!canAccessRoute(user.role, path)) {
+      return <Navigate to="/" replace />;
+    }
+    return element;
+  };
+
   return (
     <div className={`app-shell ${open ? "nav-open" : "nav-closed"}`}>
-      <Sidebar open={open} setOpen={setOpen} />
+      <Sidebar
+        open={open}
+        setOpen={setOpen}
+        navItems={navItems}
+        user={user}
+        onLogout={logout}
+      />
       <button
         type="button"
         className="app-overlay"
@@ -171,6 +213,7 @@ function App() {
           </div>
 
           <div className="topbar-right">
+            <span className="role-pill">{user.role}</span>
             <span className={`status-pill ${supabaseStatus.state}`}>
               {supabaseStatus.state === "live"
                 ? "Supabase Connected"
@@ -181,13 +224,15 @@ function App() {
             <button type="button" className="ghost-btn" onClick={() => window.print()}>
               Export Report
             </button>
-            <button
-              type="button"
-              className="solid-btn"
-              onClick={() => navigate("/announcements")}
-            >
-              New Announcement
-            </button>
+            {canAnnounce ? (
+              <button
+                type="button"
+                className="solid-btn"
+                onClick={() => navigate("/announcements")}
+              >
+                New Announcement
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -201,13 +246,55 @@ function App() {
               />
             }
           />
-          <Route path="/students" element={<StudentsPage />} />
-          <Route path="/teachers" element={<TeachersPage />} />
-          <Route path="/classes" element={<ClassesPage />} />
-          <Route path="/attendance" element={<AttendancePage />} />
-          <Route path="/homework" element={<HomeworkPage />} />
-          <Route path="/announcements" element={<AnnouncementsPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
+          <Route
+            path="/students"
+            element={renderProtected(
+              "/students",
+              <StudentsPage canCreate={canCreateResource(user.role, "students")} />,
+            )}
+          />
+          <Route
+            path="/teachers"
+            element={renderProtected(
+              "/teachers",
+              <TeachersPage canCreate={canCreateResource(user.role, "teachers")} />,
+            )}
+          />
+          <Route
+            path="/classes"
+            element={renderProtected(
+              "/classes",
+              <ClassesPage canCreate={canCreateResource(user.role, "classes")} />,
+            )}
+          />
+          <Route
+            path="/attendance"
+            element={renderProtected(
+              "/attendance",
+              <AttendancePage canCreate={canCreateResource(user.role, "attendance_records")} />,
+            )}
+          />
+          <Route
+            path="/homework"
+            element={renderProtected(
+              "/homework",
+              <HomeworkPage canCreate={canCreateResource(user.role, "homework")} />,
+            )}
+          />
+          <Route
+            path="/announcements"
+            element={renderProtected(
+              "/announcements",
+              <AnnouncementsPage canCreate={canCreateResource(user.role, "announcements")} />,
+            )}
+          />
+          <Route
+            path="/settings"
+            element={renderProtected(
+              "/settings",
+              <SettingsPage canManageSettings={canWriteSettings(user.role)} />,
+            )}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

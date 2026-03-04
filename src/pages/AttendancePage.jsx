@@ -33,7 +33,7 @@ const columns = [
   { key: "created_at", label: "Created", type: "date" },
 ];
 
-function AttendancePage() {
+function AttendancePage({ canCreate }) {
   return (
     <ResourcePage
       title="Attendance"
@@ -44,6 +44,7 @@ function AttendancePage() {
       columns={columns}
       emptyMessage="No attendance records found yet."
       successLabel="Attendance record"
+      canCreate={canCreate}
     />
   );
 }

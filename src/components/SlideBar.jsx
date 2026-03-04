@@ -1,18 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-const menu = [
-  { name: "Dashboard", path: "/", icon: "DB", tone: "coral", end: true },
-  { name: "Students", path: "/students", icon: "ST", tone: "teal" },
-  { name: "Teachers", path: "/teachers", icon: "TC", tone: "violet" },
-  { name: "Classes", path: "/classes", icon: "CL", tone: "citrus" },
-  { name: "Attendance", path: "/attendance", icon: "AT", tone: "berry" },
-  { name: "Homework", path: "/homework", icon: "HW", tone: "ocean" },
-  { name: "Announcements", path: "/announcements", icon: "AN", tone: "gold" },
-  { name: "Settings", path: "/settings", icon: "SE", tone: "sky" },
-];
-
-const Sidebar = ({ open, setOpen }) => {
+const Sidebar = ({ open, setOpen, navItems, user, onLogout }) => {
   const handleNavItemClick = () => {
     if (window.innerWidth < 960) {
       setOpen(false);
@@ -38,7 +27,7 @@ const Sidebar = ({ open, setOpen }) => {
       </div>
 
       <nav className="sidebar-nav">
-        {menu.map((item) => (
+        {navItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
@@ -55,9 +44,12 @@ const Sidebar = ({ open, setOpen }) => {
       </nav>
 
       <div className="sidebar-foot">
-        <p>Term Progress</p>
-        <strong>72% complete</strong>
-        <span>Final reports unlock in 18 days.</span>
+        <p>Signed in as</p>
+        <strong>{user?.name || "-"}</strong>
+        <span>{user?.role || "guest"} role</span>
+        <button type="button" className="ghost-btn sidebar-logout" onClick={onLogout}>
+          Logout
+        </button>
       </div>
     </aside>
   );

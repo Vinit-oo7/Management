@@ -31,7 +31,7 @@ const columns = [
   { key: "status", label: "Status" },
 ];
 
-function HomeworkPage() {
+function HomeworkPage({ canCreate }) {
   return (
     <ResourcePage
       title="Homework"
@@ -42,6 +42,7 @@ function HomeworkPage() {
       columns={columns}
       emptyMessage="No homework published yet."
       successLabel="Homework item"
+      canCreate={canCreate}
     />
   );
 }

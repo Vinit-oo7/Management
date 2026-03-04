@@ -17,7 +17,7 @@ const columns = [
   { key: "created_at", label: "Created", type: "date" },
 ];
 
-function ClassesPage() {
+function ClassesPage({ canCreate }) {
   return (
     <ResourcePage
       title="Classes"
@@ -27,6 +27,7 @@ function ClassesPage() {
       columns={columns}
       emptyMessage="No class records found yet."
       successLabel="Class"
+      canCreate={canCreate}
     />
   );
 }

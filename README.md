@@ -1,31 +1,56 @@
-# Getting Started with Create React App
+# Angel School Manager
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Role-based school management frontend connected to Supabase.
+
+## Demo Auth IDs
+
+Use one of these account IDs on the login screen:
+
+- `Admin@123@gmail.com` -> role: `admin`
+- `teacher@123` -> role: `teacher`
+- `student@123` -> role: `student`
+
+## Role Authority
+
+- `admin`
+  - Access: all pages
+  - Create/Edit: all modules
+  - Settings save: allowed
+- `teacher`
+  - Access: Dashboard, Students, Classes, Attendance, Homework, Announcements, Settings
+  - Create: Attendance, Homework, Announcements
+  - Students/Classes: read-only
+  - Settings save: blocked
+- `student`
+  - Access: Dashboard, Homework, Announcements, Settings
+  - Create: none (read-only)
+  - Settings save: blocked
+
+## Dark Mode
+
+- Available in `Settings`.
+- Persisted in browser local storage key: `angel-manager-theme`.
 
 ## Supabase Setup
 
-1. Copy `.env.example` to `.env.local`.
-2. Set your values:
+1. Copy `.env.example` to `.env.local`
+2. Fill:
    - `REACT_APP_SUPABASE_URL`
    - `REACT_APP_SUPABASE_PUBLISHABLE_KEY`
-3. Run `npm start`.
+3. Run `npm start`
 
-For production publish (Vercel/Netlify), add the same variables in the project environment settings.
+## Netlify Deploy
 
-## Netlify Deploy Fix
-
-Create React App reads env vars only at build time.
+Create React App reads env vars at build time only.
 
 1. Netlify -> `Site configuration` -> `Environment variables`
 2. Add:
    - `REACT_APP_SUPABASE_URL`
    - `REACT_APP_SUPABASE_PUBLISHABLE_KEY`
    - `REACT_APP_SUPABASE_PRODUCTS_TABLE=products`
-3. Deploys -> `Clear cache and deploy site`
+3. `Deploys` -> `Clear cache and deploy site`
 
-## Full School Tables SQL
-
-Run this once in Supabase SQL Editor so all nav pages work:
+## Full SQL (Run Once in Supabase)
 
 ```sql
 create table if not exists public.students (
@@ -139,71 +164,17 @@ drop policy if exists "public products access" on public.products;
 create policy "public products access" on public.products for all using (true) with check (true);
 ```
 
-Note: These policies are open for quick setup/demo. Before real production, lock this down with auth-based policies.
+Important: The above policies are open for speed/demo.  
+For real production, replace with authenticated row-level policies.
 
-## Available Scripts
+## PWA
 
-In the project directory, you can run:
+- Manifest: `public/manifest.json`
+- Service worker: `public/sw.js`
+- Registered in production from `src/index.js`
 
-### `npm start`
+## Scripts
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `npm start`
+- `npm run build`
+- `npm test`

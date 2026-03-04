@@ -1,35 +1,117 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { countRows, getFriendlyError, listRows } from "../lib/schoolService";
 
-const stats = [
-  { label: "Total Students", value: "1,842", trend: "+6.4%", status: "up" },
-  { label: "Teacher Presence", value: "97.2%", trend: "+1.2%", status: "up" },
-  { label: "Classrooms Live", value: "54", trend: "-2", status: "down" },
-  { label: "Pending Homework", value: "127", trend: "Today", status: "neutral" },
-];
-
-const tasks = [
-  "Publish March exam schedule",
-  "Review 3 attendance alerts",
-  "Approve fee waiver requests",
-  "Send parent newsletter draft",
-];
-
-const sessions = [
-  { className: "Class 10 A", topic: "Physics Lab", time: "09:30 AM" },
-  { className: "Class 8 C", topic: "Math Revision", time: "11:15 AM" },
-  { className: "Class 12 B", topic: "English Debate", time: "01:45 PM" },
-];
+function formatToday() {
+  return new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
 
 function DashboardPage({ supabaseStatus, listingStatus }) {
+  const [stats, setStats] = useState([
+    { label: "Students", value: "0", status: "neutral" },
+    { label: "Teachers", value: "0", status: "neutral" },
+    { label: "Classes", value: "0", status: "neutral" },
+    { label: "Announcements", value: "0", status: "neutral" },
+  ]);
+  const [taskItems, setTaskItems] = useState([]);
+  const [sessionItems, setSessionItems] = useState([]);
+  const [dashboardError, setDashboardError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    const loadDashboard = async () => {
+      setDashboardError("");
+
+      const [studentsCount, teachersCount, classesCount, announcementsCount] =
+        await Promise.all([
+          countRows("students"),
+          countRows("teachers"),
+          countRows("classes"),
+          countRows("announcements", [{ op: "eq", column: "status", value: "published" }]),
+        ]);
+
+      const [announcementRows, classRows, homeworkRows] = await Promise.all([
+        listRows("announcements", { orderBy: "publish_date", ascending: false, limit: 4 }),
+        listRows("classes", { orderBy: "created_at", ascending: false, limit: 3 }),
+        listRows("homework", { orderBy: "due_date", ascending: true, limit: 4 }),
+      ]);
+
+      if (!active) {
+        return;
+      }
+
+      const errors = [
+        studentsCount.error,
+        teachersCount.error,
+        classesCount.error,
+        announcementsCount.error,
+        announcementRows.error,
+        classRows.error,
+        homeworkRows.error,
+      ].filter(Boolean);
+
+      if (errors.length > 0) {
+        setDashboardError(getFriendlyError(errors[0], "dashboard"));
+      }
+
+      setStats([
+        {
+          label: "Students",
+          value: String(studentsCount.count || 0),
+          status: studentsCount.count > 0 ? "up" : "neutral",
+        },
+        {
+          label: "Teachers",
+          value: String(teachersCount.count || 0),
+          status: teachersCount.count > 0 ? "up" : "neutral",
+        },
+        {
+          label: "Classes",
+          value: String(classesCount.count || 0),
+          status: classesCount.count > 0 ? "up" : "neutral",
+        },
+        {
+          label: "Announcements",
+          value: String(announcementsCount.count || 0),
+          status: announcementsCount.count > 0 ? "up" : "neutral",
+        },
+      ]);
+
+      const combinedTasks = [
+        ...(announcementRows.data || []).map((item) => item.title),
+        ...(homeworkRows.data || []).map((item) => item.title),
+      ].filter(Boolean);
+      setTaskItems(combinedTasks.slice(0, 4));
+
+      const sessions = (classRows.data || []).map((item) => ({
+        className: `${item.class_name || "Class"} ${item.section || ""}`.trim(),
+        topic: item.class_teacher || "Teacher not assigned",
+        time: item.schedule || "Schedule not set",
+      }));
+      setSessionItems(sessions);
+    };
+
+    loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <section className="content-stack">
       <section className="hero-panel">
         <div className="hero-content">
-          <p className="hero-kicker">Today, March 5, 2026</p>
+          <p className="hero-kicker">Today, {formatToday()}</p>
           <h2>Everything important at a glance, without digging through tabs.</h2>
           <p>
-            Track attendance, classes, and communication from one place. The panel is
-            tuned for fast actions with fewer clicks.
+            Dashboard values below are loaded from Supabase tables. No placeholder
+            metrics are used.
           </p>
           <div className="hero-actions">
             <button type="button" className="solid-btn">
@@ -48,12 +130,16 @@ function DashboardPage({ supabaseStatus, listingStatus }) {
         </div>
       </section>
 
+      {dashboardError ? <p className="alert error">{dashboardError}</p> : null}
+
       <section className="stats-grid">
         {stats.map((item, index) => (
           <article key={item.label} className={`stat-card tone-${index + 1}`}>
             <p>{item.label}</p>
             <h3>{item.value}</h3>
-            <span className={`stat-trend ${item.status}`}>{item.trend}</span>
+            <span className={`stat-trend ${item.status}`}>
+              {item.status === "up" ? "Live" : "No data"}
+            </span>
           </article>
         ))}
       </section>
@@ -61,35 +147,43 @@ function DashboardPage({ supabaseStatus, listingStatus }) {
       <section className="board-grid">
         <article className="panel-card panel-priority">
           <div className="panel-head">
-            <h3>Priority Queue</h3>
-            <span className="chip">4 actions</span>
+            <h3>Latest Activity</h3>
+            <span className="chip">{taskItems.length} items</span>
           </div>
-          <ul className="list">
-            {tasks.map((task) => (
-              <li key={task}>
-                <span className="list-dot" />
-                <span>{task}</span>
-              </li>
-            ))}
-          </ul>
+          {taskItems.length > 0 ? (
+            <ul className="list">
+              {taskItems.map((task) => (
+                <li key={task}>
+                  <span className="list-dot" />
+                  <span>{task}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="empty-state">No announcements or homework entries yet.</p>
+          )}
         </article>
 
         <article className="panel-card panel-sessions">
           <div className="panel-head">
             <h3>Upcoming Sessions</h3>
-            <span className="chip">Next 3</span>
+            <span className="chip">{sessionItems.length} classes</span>
           </div>
-          <ul className="session-list">
-            {sessions.map((session) => (
-              <li key={`${session.className}-${session.time}`}>
-                <div>
-                  <p className="session-class">{session.className}</p>
-                  <p className="session-topic">{session.topic}</p>
-                </div>
-                <span className="session-time">{session.time}</span>
-              </li>
-            ))}
-          </ul>
+          {sessionItems.length > 0 ? (
+            <ul className="session-list">
+              {sessionItems.map((session) => (
+                <li key={`${session.className}-${session.time}`}>
+                  <div>
+                    <p className="session-class">{session.className}</p>
+                    <p className="session-topic">{session.topic}</p>
+                  </div>
+                  <span className="session-time">{session.time}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="empty-state">No classes configured yet.</p>
+          )}
         </article>
 
         <article className="panel-card panel-readiness">
@@ -115,15 +209,8 @@ function DashboardPage({ supabaseStatus, listingStatus }) {
             <li>
               <span className="readiness-dot ok" />
               <div>
-                <p className="readiness-title">Responsive frontend</p>
-                <p className="readiness-note">Dashboard is mobile + desktop ready.</p>
-              </div>
-            </li>
-            <li>
-              <span className="readiness-dot ok" />
-              <div>
-                <p className="readiness-title">Navigation and routing shell</p>
-                <p className="readiness-note">Sidebar toggle is active and stable.</p>
+                <p className="readiness-title">Role-based navigation</p>
+                <p className="readiness-note">Each role sees only permitted modules.</p>
               </div>
             </li>
           </ul>
