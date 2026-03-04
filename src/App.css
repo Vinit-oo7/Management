@@ -279,6 +279,13 @@
   transition: margin-left 280ms ease;
 }
 
+.content-stack {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -393,6 +400,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.ghost-btn:disabled,
+.solid-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .ghost-btn {
@@ -581,9 +595,8 @@
 }
 
 .board-grid {
-  margin-top: 16px;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
 }
 
@@ -747,6 +760,131 @@
   margin: 2px 0 0;
   font-size: 12px;
   color: #57668f;
+}
+
+.panel-card.panel-entity {
+  background: linear-gradient(140deg, #fffefc 0%, #f4f7ff 100%);
+}
+
+.panel-card.panel-table {
+  background: linear-gradient(140deg, #f8fdff 0%, #f3f9ff 100%);
+}
+
+.muted-copy {
+  margin: 0 0 12px;
+  color: #57668f;
+  font-size: 14px;
+}
+
+.alert {
+  margin: 0 0 10px;
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.alert.error {
+  background: #fff1ed;
+  color: #a23f23;
+  border: 1px solid #ffd8ce;
+}
+
+.alert.success {
+  background: #ebfff4;
+  color: #1f7c4f;
+  border: 1px solid #bfeecf;
+}
+
+.entity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #4f5d86;
+}
+
+.field input,
+.field select,
+.field textarea {
+  border: 1px solid #d3ddff;
+  border-radius: 10px;
+  padding: 10px 11px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #232f57;
+  background: #ffffff;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: 2px solid rgba(111, 141, 255, 0.28);
+  border-color: #8199ff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.entity-table-wrap {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid #dbe5ff;
+  background: #ffffff;
+}
+
+.entity-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+}
+
+.entity-table th,
+.entity-table td {
+  text-align: left;
+  border-bottom: 1px solid #edf2ff;
+  padding: 10px 11px;
+  font-size: 13px;
+}
+
+.entity-table th {
+  background: #f6f9ff;
+  color: #40528f;
+  font-weight: 700;
+}
+
+.loading-state,
+.empty-state {
+  margin: 0;
+  border-radius: 10px;
+  border: 1px dashed #cdd8ff;
+  background: #f8fbff;
+  padding: 12px;
+  color: #50618d;
+  font-size: 13px;
 }
 
 @keyframes rise {

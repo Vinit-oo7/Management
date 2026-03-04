@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 const menu = [
-  { name: "Dashboard", path: "/", icon: "DB", tone: "coral" },
+  { name: "Dashboard", path: "/", icon: "DB", tone: "coral", end: true },
   { name: "Students", path: "/students", icon: "ST", tone: "teal" },
   { name: "Teachers", path: "/teachers", icon: "TC", tone: "violet" },
   { name: "Classes", path: "/classes", icon: "CL", tone: "citrus" },
@@ -42,6 +42,7 @@ const Sidebar = ({ open, setOpen }) => {
           <NavLink
             key={item.name}
             to={item.path}
+            end={item.end}
             onClick={handleNavItemClick}
             className={({ isActive }) =>
               `nav-item ${item.tone} ${isActive ? "active" : ""}`.trim()
