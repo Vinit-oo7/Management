@@ -1,13 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
-const supabasePublishableKey = process.env.REACT_APP_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl =
+  process.env.REACT_APP_SUPABASE_URL || process.env.REACT_APP_SUPABASE_PROJECT_URL;
+const supabasePublishableKey =
+  process.env.REACT_APP_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.REACT_APP_SUPABASE_ANON_KEY ||
+  process.env.REACT_APP_SUPABASE_KEY;
 
 if (!supabaseUrl || !supabasePublishableKey) {
   // Missing keys should not crash the app in development.
   // The UI displays a clear status message when this happens.
   console.warn(
-    "Supabase env vars are missing. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_PUBLISHABLE_KEY.",
+    "Supabase env vars are missing. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_PUBLISHABLE_KEY (or REACT_APP_SUPABASE_ANON_KEY).",
   );
 }
 
@@ -20,7 +24,8 @@ export async function checkSupabaseConnection() {
   if (!supabaseUrl || !supabasePublishableKey) {
     return {
       ok: false,
-      message: "Missing Supabase environment variables.",
+      message:
+        "Missing env vars: REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_PUBLISHABLE_KEY.",
     };
   }
 

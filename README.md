@@ -12,6 +12,19 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 For production publish (Vercel/Netlify), add the same variables in the project environment settings.
 
+### Netlify Note
+
+Create React App reads env vars at build time, not runtime.  
+In Netlify:
+
+1. Go to `Site configuration` -> `Environment variables`.
+2. Add:
+   - `REACT_APP_SUPABASE_URL`
+   - `REACT_APP_SUPABASE_PUBLISHABLE_KEY`
+3. Trigger `Deploys` -> `Clear cache and deploy site`.
+
+If you only deploy without rebuilding, the app will still show "Connection Needed".
+
 ## Sell/Publish Table (Supabase SQL)
 
 Run this in Supabase SQL Editor to enable a basic `products` table:
