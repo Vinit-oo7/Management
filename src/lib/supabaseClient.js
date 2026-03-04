@@ -1,11 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 
+const fallbackSupabaseUrl = "https://rlicerkiuhcixwlexbwk.supabase.co";
+const fallbackSupabasePublishableKey =
+  "sb_publishable_Z2K4p4EiSu11ftgGsrTBQw_FI93S1NF";
+
 const supabaseUrl =
-  process.env.REACT_APP_SUPABASE_URL || process.env.REACT_APP_SUPABASE_PROJECT_URL;
+  process.env.REACT_APP_SUPABASE_URL ||
+  process.env.REACT_APP_SUPABASE_PROJECT_URL ||
+  fallbackSupabaseUrl;
 const supabasePublishableKey =
   process.env.REACT_APP_SUPABASE_PUBLISHABLE_KEY ||
   process.env.REACT_APP_SUPABASE_ANON_KEY ||
-  process.env.REACT_APP_SUPABASE_KEY;
+  process.env.REACT_APP_SUPABASE_KEY ||
+  fallbackSupabasePublishableKey;
 
 if (!supabaseUrl || !supabasePublishableKey) {
   // Missing keys should not crash the app in development.
