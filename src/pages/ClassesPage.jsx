@@ -26,6 +26,7 @@ function ClassesPage() {
       fields={fields}
       columns={columns}
       emptyMessage="No class records found yet."
+      successLabel="Class"
     />
   );
 }

@@ -25,6 +25,7 @@ function ResourcePage({
   fields,
   columns,
   emptyMessage,
+  successLabel,
 }) {
   const initialFormState = useMemo(() => {
     const entries = fields.map((field) => [field.name, field.defaultValue || ""]);
@@ -97,7 +98,7 @@ function ResourcePage({
       return;
     }
 
-    setSuccess(`${title.slice(0, -1)} added successfully.`);
+    setSuccess(`${successLabel || "Record"} added successfully.`);
     setForm(initialFormState);
     setSaving(false);
     loadRows();

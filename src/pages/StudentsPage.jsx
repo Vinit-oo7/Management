@@ -34,6 +34,7 @@ function StudentsPage() {
       fields={fields}
       columns={columns}
       emptyMessage="No student records found yet."
+      successLabel="Student"
     />
   );
 }

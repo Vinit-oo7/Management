@@ -41,6 +41,7 @@ function HomeworkPage() {
       fields={fields}
       columns={columns}
       emptyMessage="No homework published yet."
+      successLabel="Homework item"
     />
   );
 }

@@ -34,6 +34,7 @@ function TeachersPage() {
       fields={fields}
       columns={columns}
       emptyMessage="No teacher records found yet."
+      successLabel="Teacher"
     />
   );
 }

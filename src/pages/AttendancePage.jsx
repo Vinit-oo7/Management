@@ -43,6 +43,7 @@ function AttendancePage() {
       fields={fields}
       columns={columns}
       emptyMessage="No attendance records found yet."
+      successLabel="Attendance record"
     />
   );
 }

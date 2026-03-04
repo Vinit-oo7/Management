@@ -53,6 +53,7 @@ function AnnouncementsPage() {
       fields={fields}
       columns={columns}
       emptyMessage="No announcements published yet."
+      successLabel="Announcement"
     />
   );
 }
